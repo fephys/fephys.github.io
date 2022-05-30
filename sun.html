@@ -1,0 +1,34 @@
+<!doctype html>
+<html> <head>
+<title>Sun position & True local clock</title>
+<link rel="stylesheet" type="text/css" href="sun.css">
+<style>
+.vanish { opacity: 0.0; }
+.vanish:hover {
+  opacity: 1.0;
+  // background-color: rgba(0,0,0,0.5);
+}
+</style>
+</head>
+
+<body>
+<ul class='blkhd vanish'><li class='blk green'>
+<a class='undec' href="/">apk.li</a></li></ul>
+<table style='width: 100%; height: 70%; '><tr><td align='center' valign='center'>
+<div>
+<div style='font-size:2em;'>True local time:</div><br>
+<div style='font-size:1em;'>(at <span id='lat'>?</span> degrees <span id='east'>east &middot;</span> - <a href="javascript:askloc();">use geoloc</a>)</div><br>
+<div style='font-size:1em;'>(default location is Ledbury, UK)</div><br>
+<div id='sol' style='font-size:5em;'></div>
+<div style='font-size:1.5em;'>Median local time:</div>
+<div style='font-size:3em;' id='med'></div>
+<div style='font-size:1em;'>Browser zone time:</div>
+<div style='font-size:2em;' id='time'></div>
+<div style='font-size:1em;'>Sun position:</div>
+<div style='font-size:2em;' id='pos'></div>
+</div>
+</td></tr></table>
+<div id='log'>pre</div>
+</body>
+<script type="text/javascript" src="sun.js"></script>
+</html>
