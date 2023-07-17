@@ -1,59 +1,83 @@
-<html><head><title>Sun position & true local clock</title><style>
+<!DOCTYPE html><html><head><title>Sun position & true local clock</title><style>
 td { border: 1px solid gray; }
 </style></head>
 <body>
 <script type='text/javascript' src='t.js'></script>
 <h3>Sun location computation</h3>
-<table><tr><th>Variable</th><th>Value</th><th>Expression</th><th>Comment</th></tr><tr><td>lat</td><td id='s100'></td><td> 48.4                       </td><td>Latitude
+<table>
+<tr><th>Lat</th><th>Lon</th></tr>
+<tr><td><input id='lat' value='48.4'></input></td><td><input id='lon' value='10.0'></input></td></tr>
+</table>
+<table>
+<tr><th>Azimuth</th><th>Elevation</th><th>Model</th></tr>
+<tr><td id='ga'></td><td id='ge'></td><td>Globe</td></tr>
+<tr><td id='fa'></td><td id='fe'></td><td>Flat</td></tr>
+</table>
+<table><tr><th>Variable</th><th>Value</th><th>Expression</th><th>Comment</th></tr><tr><td>lat</td><td id='s100'></td><td> getf('lat')                       </td><td>Latitude
 </td></tr>
-<tr><td>longi</td><td id='s101'></td><td> 10                     </td><td>Longitude
+<tr><td>longi</td><td id='s101'></td><td> getf('lon')                     </td><td>Longitude
 </td></tr>
-<tr><td>t0</td><td id='s102'></td><td> new Date().getTime() / 1000     </td><td>Unix time in seconds
+<tr><td>t0</td><td id='s102'></td><td> new Date().getTime() / 1000     </td><td>Unix time in seconds since 1.1.1970 0:00 GMT
 </td></tr>
 <tr><td>so</td><td id='s103'></td><td> solaroffset(t0) / 1000          </td><td>Equation of time offset (seconds)
 </td></tr>
-<tr><td>t</td><td id='s104'></td><td> t0 + so + 240.0 * longi
-</td><td></td></tr>
-<tr><td>TP</td><td id='s105'></td><td>31557600.0 </td><td>Year length (seconds)
+<tr><td>TP</td><td id='s104'></td><td>31557600.0 </td><td>Year length (seconds)
 </td></tr>
-<tr><td>T0</td><td id='s106'></td><td>1640084400.0+TP/4 </td><td>Year base
+<tr><td>T0</td><td id='s105'></td><td>1640084400.0+TP/4 </td><td>Year base
 </td></tr>
-<tr><td>el</td><td id='s107'></td><td>r2d(Math.asin(Math.sin(d2r(23.4))*Math.sin(2*Math.PI*(t0-T0)/TP))) </td><td>Sun elevation above equator
+<tr><td>el</td><td id='s106'></td><td>r2d(Math.asin(Math.sin(d2r(23.4))*Math.sin(2*Math.PI*(t0-T0)/TP))) </td><td>Sun elevation above equator
 </td></tr>
-<tr><td>j</td><td id='s108'></td><td>s2d((t0+so+43200)%86400) </td><td>Hour angle of the sun
+<tr><td>j</td><td id='s107'></td><td>s2d((t0+so+43200 + 240.0 * longi) % 86400) </td><td>Local hour angle of the sun
 </td></tr>
 <tr><td colspan=4>Convert direction into a cartesian unit vector
 </td></tr>
-<tr><td>x</td><td id='s109'></td><td>Math.cos(d2r(j))*Math.cos(d2r(el)) </td><td>Equator zenith direction
+<tr><td>x</td><td id='s108'></td><td>Math.cos(d2r(j))*Math.cos(d2r(el)) </td><td>Equator zenith direction
 </td></tr>
-<tr><td>y</td><td id='s110'></td><td>Math.sin(d2r(j))*Math.cos(d2r(el)) </td><td>Equator east direction
+<tr><td>y</td><td id='s109'></td><td>Math.sin(d2r(j))*Math.cos(d2r(el)) </td><td>Equator east direction
 </td></tr>
-<tr><td>z</td><td id='s111'></td><td>Math.sin(d2r(el))                  </td><td>North direction
+<tr><td>z</td><td id='s110'></td><td>Math.sin(d2r(el))                  </td><td>North direction
 </td></tr>
 <tr><td colspan=4>Latitude rotation helpers
 </td></tr>
-<tr><td>sl</td><td id='s112'></td><td>Math.sin(d2r(lat))                    </td><td>sine of latitude
+<tr><td>sl</td><td id='s111'></td><td>Math.sin(d2r(lat))                    </td><td>sine of latitude
 </td></tr>
-<tr><td>cl</td><td id='s113'></td><td>Math.cos(d2r(lat))                    </td><td>cnsine of latitude
+<tr><td>cl</td><td id='s112'></td><td>Math.cos(d2r(lat))                    </td><td>cosine of latitude
 </td></tr>
 <tr><td colspan=4>Rotate unit vector to match the observer's latitude
 </td></tr>
-<tr><td>xr</td><td id='s114'></td><td>x*cl+z*sl </td><td>Up
+<tr><td>xr</td><td id='s113'></td><td>x*cl+z*sl </td><td>Up
 </td></tr>
-<tr><td>yr</td><td id='s115'></td><td>y         </td><td>West
+<tr><td>yr</td><td id='s114'></td><td>y         </td><td>West
 </td></tr>
-<tr><td>zr</td><td id='s116'></td><td>z*cl-x*cl </td><td>North
+<tr><td>zr</td><td id='s115'></td><td>z*cl-x*cl </td><td>North
 </td></tr>
-<tr><td>ele</td><td id='s117'></td><td>r2d(Math.atan2(xr,Math.sqrt(yr*yr+zr*zr))) </td><td>Elevation
+<tr><td colspan=4>Elevation/azimuth from unit vector
 </td></tr>
-<tr><td>azi</td><td id='s118'></td><td>dnorm(r2d(Math.atan2(-yr,zr)))             </td><td>Azimuth
+<tr><td>ele</td><td id='s116'></td><td>r2d(Math.atan2(xr,Math.sqrt(yr*yr+zr*zr))) </td><td>Elevation
 </td></tr>
+<tr><td>azi</td><td id='s117'></td><td>dnorm(r2d(Math.atan2(-yr,zr)))             </td><td>Azimuth
+</td></tr>
+<tr><td colspan=4>For flatties
+</td></tr>
+<tr><td>sund</td><td id='s118'></td><td>10000*(1-el/90.0)  </td><td>Distance from north pole to sun
+</td></tr>
+<tr><td>suni</td><td id='s119'></td><td>sund*Math.cos(d2r(j)) </td><td>Distance in direction of zero meridian
+</td></tr>
+<tr><td>sunq</td><td id='s120'></td><td>sund*Math.sin(d2r(j)) </td><td>Distance in direction of 90 degree meridian
+</td></tr>
+<tr><td colspan=4>Elevation/Azimuth
+</td></tr>
+<tr><td>ele</td><td id='s121'></td><td>r2d(Math.atan2(5000.0,sund))
+</td><td></td></tr>
+<tr><td>azi</td><td id='s122'></td><td>dnorm(r2d(Math.atan2(suni,sunq)))
+</td><td></td></tr>
 </table>
-<script>var lat =  48.4                       ;
+<script>
+function compute() {var lat =  getf('lat')                       ;
 
       document.getElementById('s100').innerHTML=''+lat;
 
-var longi =  10                     ;
+var longi =  getf('lon')                     ;
 
       document.getElementById('s101').innerHTML=''+longi;
 
@@ -65,67 +89,101 @@ var so =  solaroffset(t0) / 1000          ;
 
       document.getElementById('s103').innerHTML=''+so;
 
-var t =  t0 + so + 240.0 * longi
-;
-
-      document.getElementById('s104').innerHTML=''+t;
-
 var TP = 31557600.0 ;
 
-      document.getElementById('s105').innerHTML=''+TP;
+      document.getElementById('s104').innerHTML=''+TP;
 
 var T0 = 1640084400.0+TP/4 ;
 
-      document.getElementById('s106').innerHTML=''+T0;
+      document.getElementById('s105').innerHTML=''+T0;
 
 var el = r2d(Math.asin(Math.sin(d2r(23.4))*Math.sin(2*Math.PI*(t0-T0)/TP))) ;
 
-      document.getElementById('s107').innerHTML=''+el;
+      document.getElementById('s106').innerHTML=''+el;
 
-var j = s2d((t0+so+43200)%86400) ;
+var j = s2d((t0+so+43200 + 240.0 * longi) % 86400) ;
 
-      document.getElementById('s108').innerHTML=''+j;
+      document.getElementById('s107').innerHTML=''+j;
 
 var x = Math.cos(d2r(j))*Math.cos(d2r(el)) ;
 
-      document.getElementById('s109').innerHTML=''+x;
+      document.getElementById('s108').innerHTML=''+x;
 
 var y = Math.sin(d2r(j))*Math.cos(d2r(el)) ;
 
-      document.getElementById('s110').innerHTML=''+y;
+      document.getElementById('s109').innerHTML=''+y;
 
 var z = Math.sin(d2r(el))                  ;
 
-      document.getElementById('s111').innerHTML=''+z;
+      document.getElementById('s110').innerHTML=''+z;
 
 var sl = Math.sin(d2r(lat))                    ;
 
-      document.getElementById('s112').innerHTML=''+sl;
+      document.getElementById('s111').innerHTML=''+sl;
 
 var cl = Math.cos(d2r(lat))                    ;
 
-      document.getElementById('s113').innerHTML=''+cl;
+      document.getElementById('s112').innerHTML=''+cl;
 
 var xr = x*cl+z*sl ;
 
-      document.getElementById('s114').innerHTML=''+xr;
+      document.getElementById('s113').innerHTML=''+xr;
 
 var yr = y         ;
 
-      document.getElementById('s115').innerHTML=''+yr;
+      document.getElementById('s114').innerHTML=''+yr;
 
 var zr = z*cl-x*cl ;
 
-      document.getElementById('s116').innerHTML=''+zr;
+      document.getElementById('s115').innerHTML=''+zr;
 
 var ele = r2d(Math.atan2(xr,Math.sqrt(yr*yr+zr*zr))) ;
 
-      document.getElementById('s117').innerHTML=''+ele;
+      document.getElementById('s116').innerHTML=''+ele;
+
+      document.getElementById('ge').innerHTML=''+ele;
 
 var azi = dnorm(r2d(Math.atan2(-yr,zr)))             ;
 
-      document.getElementById('s118').innerHTML=''+azi;
+      document.getElementById('s117').innerHTML=''+azi;
 
+      document.getElementById('ga').innerHTML=''+azi;
+
+var sund = 10000*(1-el/90.0)  ;
+
+      document.getElementById('s118').innerHTML=''+sund;
+
+var suni = sund*Math.cos(d2r(j)) ;
+
+      document.getElementById('s119').innerHTML=''+suni;
+
+var sunq = sund*Math.sin(d2r(j)) ;
+
+      document.getElementById('s120').innerHTML=''+sunq;
+
+var ele = r2d(Math.atan2(5000.0,sund))
+;
+
+      document.getElementById('s121').innerHTML=''+ele;
+
+      document.getElementById('fe').innerHTML=''+ele;
+
+var azi = dnorm(r2d(Math.atan2(suni,sunq)))
+;
+
+      document.getElementById('s122').innerHTML=''+azi;
+
+      document.getElementById('fa').innerHTML=''+azi;
+
+}
+function tick() {
+    var d=new Date();
+    var m=1050-d.getMilliseconds();
+    if (m < 500) m += 1000;
+    window.setTimeout(tick,m);
+    compute();
+}
+tick();
 </script>
 </body></html>
 

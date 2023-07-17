@@ -19,6 +19,9 @@ function dnorm(x) {
     return x;
 }
 
+function getf(x) {
+    return parseFloat(document.getElementById(x).value);
+}
 
 function setfields(prefix,value) {
     var o = value % 10;
